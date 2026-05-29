@@ -12,7 +12,9 @@ export class EbooksService {
       .order('created_at', { ascending: false });
 
     if (category && category !== 'Semua') {
-      query = query.eq('category', category);
+      // Support multi-category: category field is comma-separated
+      // Filter ebooks that contain the selected category
+      query = query.ilike('category', `%${category}%`);
     }
 
     const { data, error } = await query;

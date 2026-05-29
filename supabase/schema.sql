@@ -34,6 +34,7 @@ CREATE TABLE ebooks (
   synopsis TEXT DEFAULT '',
   rating DECIMAL(2,1) DEFAULT 5.0,
   views INTEGER DEFAULT 0,
+  source_type VARCHAR(20) DEFAULT 'manual' CHECK (source_type IN ('manual', 'pdf')),
   settings JSONB DEFAULT '{}',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -49,6 +50,7 @@ CREATE TABLE ebook_pages (
   vertical_align VARCHAR(20) DEFAULT 'top',
   show_chapter_title BOOLEAN DEFAULT false,
   show_page_number BOOLEAN DEFAULT false,
+  is_pdf_page BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
