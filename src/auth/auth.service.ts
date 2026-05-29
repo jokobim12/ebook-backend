@@ -62,4 +62,34 @@ export class AuthService {
       },
     };
   }
+
+  async loginWithGoogle(email: string, name: string, avatarUrl: string) {
+    // Check if user already exists
+    let user = await this.usersService.findByEmail(email);
+
+    if (!user) {
+      // Create new user with random password (they'll use Google to login)
+      const randomPassword = await bcrypt.hash(Math.random().toString(36), 10);
+      user = await this.usersService.create({
+        name,
+        email,
+        password_hash: randomPassword,
+        role: 'user',
+        avatar_url: avatarUrl,
+      });
+    }
+
+    const payload = { sub: user.id, email: user.email, role: user.role };
+    return {
+      access_token: this.jwtService.sign(payload),
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        bio: user.bio,
+        avatar_url: user.avatar_url || avatarUrl,
+      },
+    };
+  }
 }
