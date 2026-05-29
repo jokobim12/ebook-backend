@@ -131,4 +131,77 @@ export class EbooksService {
       }
     }
   }
+
+  // Bookmarks
+  async getBookmarks(userId: string) {
+    const { data, error } = await this.supabase.getClient()
+      .from('bookmarks')
+      .select('ebook_id, ebooks(*, users!author_id(name), ebook_pages(id, chapter, order))')
+      .eq('user_id', userId);
+    if (error) throw error;
+    return (data || []).map((b: any) => ({
+      ...b.ebooks,
+      author_name: b.ebooks?.users?.name || 'Anonim',
+    })).filter(b => b.id);
+  }
+
+  async addBookmark(userId: string, ebookId: string) {
+    const { data, error } = await this.supabase.getClient()
+      .from('bookmarks')
+      .insert({ user_id: userId, ebook_id: ebookId })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  async removeBookmark(userId: string, ebookId: string) {
+    const { error } = await this.supabase.getClient()
+      .from('bookmarks')
+      .delete()
+      .eq('user_id', userId)
+      .eq('ebook_id', ebookId);
+    if (error) throw error;
+    return { success: true };
+  }
+
+  // Reading History
+  async getReadingHistory(userId: string) {
+    const { data, error } = await this.supabase.getClient()
+      .from('reading_history')
+      .select('current_page, total_pages, updated_at, ebooks(*, users!author_id(name))')
+      .eq('user_id', userId)
+      .order('updated_at', { ascending: false });
+    if (error) throw error;
+    return (data || []).map((h: any) => ({
+      ebook_id: h.ebooks?.id,
+      book: {
+        ...h.ebooks,
+        author_name: h.ebooks?.users?.name || 'Anonim',
+      },
+      progress: {
+        page: h.current_page,
+        totalPages: h.total_pages,
+        updatedAt: h.updated_at,
+      }
+    })).filter(h => h.book && h.book.id);
+  }
+
+  async updateReadingHistory(userId: string, ebookId: string, currentPage: number, totalPages: number) {
+    const { data, error } = await this.supabase.getClient()
+      .from('reading_history')
+      .upsert({
+        user_id: userId,
+        ebook_id: ebookId,
+        current_page: currentPage,
+        total_pages: totalPages,
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,ebook_id'
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
 }

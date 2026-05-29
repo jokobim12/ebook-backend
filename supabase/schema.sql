@@ -113,3 +113,13 @@ INSERT INTO categories (name, "order") VALUES
 ('Romantis', 6),
 ('Sedih', 7),
 ('Kata-Kata', 8);
+
+-- Function to atomically increment view count
+CREATE OR REPLACE FUNCTION increment_views(ebook_id UUID)
+RETURNS void AS $$
+BEGIN
+  UPDATE ebooks
+  SET views = COALESCE(views, 0) + 1
+  WHERE id = ebook_id;
+END;
+$$ LANGUAGE plpgsql;

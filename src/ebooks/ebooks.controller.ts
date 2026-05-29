@@ -11,6 +11,45 @@ export class EbooksController {
     return this.ebooksService.findAll(category);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('user/bookmarks')
+  getBookmarks(@Request() req) {
+    return this.ebooksService.getBookmarks(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/bookmark')
+  addBookmark(@Param('id') id: string, @Request() req) {
+    return this.ebooksService.addBookmark(req.user.id, id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/bookmark')
+  removeBookmark(@Param('id') id: string, @Request() req) {
+    return this.ebooksService.removeBookmark(req.user.id, id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('user/history')
+  getReadingHistory(@Request() req) {
+    return this.ebooksService.getReadingHistory(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/history')
+  updateReadingHistory(
+    @Param('id') id: string,
+    @Body() body: { currentPage: number; totalPages: number },
+    @Request() req
+  ) {
+    return this.ebooksService.updateReadingHistory(
+      req.user.id,
+      id,
+      body.currentPage,
+      body.totalPages
+    );
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.ebooksService.findById(id);
