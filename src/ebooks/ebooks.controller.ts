@@ -40,6 +40,11 @@ export class EbooksController {
     return this.ebooksService.delete(id);
   }
 
+  @Post(':id/view')
+  incrementView(@Param('id') id: string) {
+    return this.ebooksService.incrementViews(id);
+  }
+
   // Pages
   @Get(':id/pages')
   getPages(@Param('id') id: string) {

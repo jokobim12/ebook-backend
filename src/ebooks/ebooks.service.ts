@@ -116,4 +116,19 @@ export class EbooksService {
     if (error) throw error;
     return { success: true };
   }
+
+  async incrementViews(id: string) {
+    const { error } = await this.supabase.getClient()
+      .rpc('increment_views', { ebook_id: id });
+    if (error) {
+      // Fallback: manual increment
+      const book = await this.findById(id);
+      if (book) {
+        await this.supabase.getClient()
+          .from('ebooks')
+          .update({ views: (book.views || 0) + 1 })
+          .eq('id', id);
+      }
+    }
+  }
 }
