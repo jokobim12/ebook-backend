@@ -13,7 +13,7 @@ async function bootstrap() {
     const nestApp = await NestFactory.create(AppModule, new ExpressAdapter(server));
     nestApp.setGlobalPrefix('api');
     nestApp.enableCors({
-      origin: process.env.FRONTEND_URL || '*',
+      origin: true,
       credentials: true,
     });
     nestApp.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
